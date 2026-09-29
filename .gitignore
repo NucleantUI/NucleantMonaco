@@ -60,3 +60,16 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# NucleantMonaco
+#
+# The wasm build (scripts/build_web.sh) and the page's npm tree. The built
+# page in Sources/MonacoEditorCEF/Resources — bundle.js and the gzipped
+# module — is not ignored, so the package works without the wasm toolchain.
+.build-wasm/
+npm_cef/node_modules/
+npm_cef/build/
+npm_cef/package-lock.json
+*.wasm
+.DS_Store
+Package.resolved

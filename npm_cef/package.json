@@ -1,0 +1,22 @@
+{
+  "name": "monaco-cef-bundle",
+  "version": "1.0.0",
+  "description": "The Monaco Editor page for MonacoEditorCEF: Monaco, the MonacoEditorWasm module and the native bridge",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production --config webpack.config.js",
+    "dev": "webpack --mode development --config webpack.config.js --watch"
+  },
+  "devDependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.3.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "monaco-editor": "^0.52.0",
+    "monaco-editor-webpack-plugin": "^7.1.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.103.0",
+    "webpack-cli": "^5.0.0"
+  }
+}
