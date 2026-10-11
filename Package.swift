@@ -19,21 +19,30 @@ let devMode: Bool = {
     return FileManager.default.fileExists(atPath: siblings.appendingPathComponent("NucleantCEF").path)
 }()
 
+/// WebAssembly (`WASM_BUILD=1`, the opt-in every Nucleant package reads):
+/// MonacoEditorCEF's page is then served by the page the app runs in, and
+/// found there through NucleantApplication's `Platform_Wasm`
+/// (`MonacoResources+Web.swift`). Without it the manifest is the desktop's
+/// as it was.
+let isWasm = ProcessInfo.processInfo.environment["WASM_BUILD"] == "1"
+
 func getDependencies() -> [Package.Dependency] {
     let shared: [Package.Dependency] = [
         .package(url: "https://github.com/swiftwasm/JavaScriptKit.git", from: "0.19.0"),
         .package(url: "https://github.com/Py-Swift/PySwiftAST.git", branch: "master"),
     ]
-    return shared + (devMode
-        ? [
-            .package(path: "../NucleantUI"),
-            .package(path: "../NucleantCEF"),
-        ]
-        : [
-            .package(url: "https://github.com/NucleantUI/NucleantUI.git", branch: "master"),
-            .package(url: "https://github.com/NucleantUI/NucleantCEF.git", branch: "master"),
-        ])
+    let nucleant = ["NucleantUI", "NucleantCEF"] + (isWasm ? ["NucleantApplication"] : [])
+    return shared + nucleant.map { name in
+        devMode
+            ? .package(path: "../\(name)")
+            : .package(url: "https://github.com/NucleantUI/\(name).git", branch: "master")
+    }
 }
+
+/// `BrowserResources`, for the browser build's editor page.
+let webOnlyDependencies: [Target.Dependency] = isWasm
+    ? [.product(name: "Platform_Wasm", package: "NucleantApplication", condition: .when(platforms: [.wasi]))]
+    : []
 
 let package = Package(
     name: "NucleantMonaco",
@@ -152,7 +161,7 @@ let package = Package(
                 "MonacoCodable",
                 .product(name: "NucleantUI", package: "NucleantUI"),
                 .product(name: "NucleantCEF", package: "NucleantCEF"),
-            ],
+            ] + webOnlyDependencies,
             resources: [
                 .copy("Resources")
             ]

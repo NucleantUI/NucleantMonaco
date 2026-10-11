@@ -6,7 +6,7 @@
 //  browser — as a model a NucleantUI view shows.
 //
 
-import AppKit
+import Foundation
 import Observation
 import MonacoApi
 import NucleantCEF
@@ -311,14 +311,8 @@ public final class MonacoEditor: CEFBrowserModel {
         phase = .failed(.pageFailed("\(description) (\(code))"))
     }
 
-    // MARK: - CEFLifeSpanHandler
-
-    /// Links that want a new window (in hovers, say) open in the system's
-    /// browser — the editor page stays where it is.
-    public func newWindowRequested(_ url: String) {
-        guard let url = URL(string: url), ["http", "https"].contains(url.scheme?.lowercased()) else { return }
-        NSWorkspace.shared.open(url)
-    }
+    // `newWindowRequested` — links that want a new window — is per platform:
+    // MonacoEditor+MacOS.swift.
 }
 
 /// The console panel under the editor, on the page — the same panel the
