@@ -22,9 +22,10 @@ import NucleantUI
 @main
 struct MonacoIDEApp: NucleantApp {
     var body: some Scene {
-        WindowGroup("MonacoIDE", width: 1200, height: 780) {
+        WindowGroup("MonacoIDE") {
             IDEScreen(workspace: .shared)
         }
+        .defaultSize(width: 1200, height: 780)
         .commands {
             IDECommands(workspace: .shared)
         }

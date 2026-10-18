@@ -5,7 +5,7 @@ import Foundation
 import PackageDescription
 
 /// Build against the sibling checkouts (`../NucleantUI`, `../NucleantCEF`) or
-/// against GitHub.
+/// against GitHub (`getDependencies()`).
 ///
 /// Decided the same way in every Nucleant package, so one setting covers the
 /// whole chain: `NUCLEANT_LOCAL_DEV=1|0` in the environment wins; otherwise
@@ -29,14 +29,23 @@ let isWasm = ProcessInfo.processInfo.environment["WASM_BUILD"] == "1"
 func getDependencies() -> [Package.Dependency] {
     let shared: [Package.Dependency] = [
         .package(url: "https://github.com/swiftwasm/JavaScriptKit.git", from: "0.19.0"),
-        .package(url: "https://github.com/Py-Swift/PySwiftAST.git", branch: "master"),
+        .package(url: "https://github.com/Py-Swift/PySwiftAST.git", .upToNextMinor(from: "0.0.1")),
     ]
     let nucleant = ["NucleantUI", "NucleantCEF"] + (isWasm ? ["NucleantApplication"] : [])
-    return shared + nucleant.map { name in
-        devMode
-            ? .package(path: "../\(name)")
-            : .package(url: "https://github.com/NucleantUI/\(name).git", branch: "master")
+    if devMode {
+        return shared + nucleant.map { .package(path: "../\($0)") }
     }
+    // Each released package by version, up to its next minor: its new 0.0.x
+    // releases are picked up as they come; its 0.1.0 only once its line here
+    // is moved to it. NucleantCEF has no release yet, so it is its main branch.
+    var dependencies: [Package.Dependency] = [
+        .package(url: "https://github.com/NucleantUI/NucleantUI.git", .upToNextMinor(from: "0.0.1")),
+        .package(url: "https://github.com/NucleantUI/NucleantCEF.git", branch: "main"),
+    ]
+    if isWasm {
+        dependencies.append(.package(url: "https://github.com/NucleantUI/NucleantApplication.git", .upToNextMinor(from: "0.0.1")))
+    }
+    return shared + dependencies
 }
 
 /// `BrowserResources`, for the browser build's editor page.
